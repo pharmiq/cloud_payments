@@ -45,8 +45,20 @@ module CloudPayments
 
     def build_connection
       Faraday::Connection.new(config.host, config.connection_options) do |conn|
-        conn.request :basic_auth, config.public_key, config.secret_key
+        setup_auth!(conn)
+        setup_logging!(conn)
         config.connection_block.call(conn) if config.connection_block
+      end
+    end
+
+    def setup_auth!(connection)
+      connection.request(:authorization, :basic, config.public_key, config.secret_key)
+    end
+
+    def setup_logging!(connection)
+      options = { headers: true, bodies: true, log_level: :debug }
+      connection.response(:logger, logger, options) do |logger|
+        logger.filter(/(Authorization: )([^&]+)/, '\1[FILTERED]')
       end
     end
   end

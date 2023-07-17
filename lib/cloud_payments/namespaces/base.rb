@@ -15,8 +15,8 @@ module CloudPayments
         @parent_path = parent_path
       end
 
-      def request(path, params = {})
-        response = client.perform_request(resource_path(path), params)
+      def request(path, params = {}, headers = nil)
+        response = client.perform_request(resource_path(path), params, headers)
         raise_gateway_error(response.body) unless response.body[:success]
         response.body
       end

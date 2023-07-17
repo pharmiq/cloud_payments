@@ -15,8 +15,9 @@ module CloudPayments
       @connection = build_connection
     end
 
-    def perform_request(path, params = nil)
-      response = connection.post(path, (params ? convert_to_json(params) : nil), headers)
+    def perform_request(path, params = nil, extra_headers = nil)
+      all_headers = extra_headers ? headers.merge(extra_headers) : headers
+      response = connection.post(path, (params ? convert_to_json(params) : nil), all_headers)
 
       Response.new(response.status, response.body, response.headers).tap do |response|
         raise_transport_error(response) if response.status.to_i >= 300
